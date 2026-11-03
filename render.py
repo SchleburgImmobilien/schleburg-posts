@@ -271,7 +271,12 @@ def l_foto(c):
         head = f'{pill}<h1 style="color:#fff;font-weight:800;font-size:50px;line-height:1.07;letter-spacing:-1px">{c.hl(s.get("headline"), s.get("accent"), s.get("headline_post"), True)}</h1><p style="color:#D5DEEA;font-size:26px;line-height:1.35;margin-top:18px">{E(s.get("text", ""))}</p>'
     if t == 'bewertung':
         uri, (dw, dh) = c.cutout(s.get('device', '1g6F5QhYkzIS0Dz6Xc9Doc1Tsi4k_6QW3'))
-        img = f'<img class="abs" style="left:560px;top:{(H-FH)//2-int(620*dh/dw/2)}px;width:620px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))" src="{uri}">'
+        if dh > dw:  # Handy/Hand: unten und rechts über den Rand hinaus, Anschnitt liegt unter Footer/Goldlinie
+            dw_ = 570; dh_ = int(dw_ * dh / dw)
+            img = f'<img class="abs" style="left:640px;top:{(H-FH)+10-dh_}px;width:{dw_}px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))" src="{uri}">'
+        else:
+            img = f'<img class="abs" style="left:560px;top:{(H-FH)//2-int(620*dh/dw/2)}px;width:620px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.45))" src="{uri}">'
+        img += f'<div class="abs" style="left:0;top:{H-FH-5}px;width:{W}px;height:10px;background:{HON}"></div>'
     else:
         img = f'<img class="abs" style="left:400px;top:0;width:800px;height:{H-FH}px;object-fit:cover;{c.fpos(im,800,H-FH,500,330)}" src="{c.photo(im)}">'
     ph = H - FH
