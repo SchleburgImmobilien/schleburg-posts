@@ -68,6 +68,8 @@ class Ctx:
 
     def cutout(self, id_, crop=True):
         p = os.path.join(self.pool, id_ + '.png')
+        if not os.path.exists(p):
+            p = os.path.join(HERE, 'assets', 'cutouts', id_ + '.png')
         im = Image.open(p).convert('RGBA')
         if crop:
             bb = im.split()[3].point(lambda a: 255 if a > 8 else 0).getbbox()
@@ -341,8 +343,12 @@ def render(spec, out, pool):
         pg = b.new_page(viewport={'width': W, 'height': H})
         pg.goto('file://' + os.path.abspath(tmp))
         pg.wait_for_timeout(600)
-        pg.screenshot(path=out)
+        png = out if out.lower().endswith('.png') else out + '.tmp.png'
+        pg.screenshot(path=png)
         b.close()
+    if png != out:
+        Image.open(png).convert('RGB').save(out, 'JPEG', quality=92)
+        os.remove(png)
     os.remove(tmp)
 
 
