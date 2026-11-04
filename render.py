@@ -157,10 +157,11 @@ def p_zahl(c):
 
 def bars_svg(vals, W, H, base, maxh, bw, gap, x0, fsv=30, fsl=26, hi_last=True):
     mx = max(v for _, v in vals) * 1.12
+    dec = any(v != int(v) for _, v in vals)
     out = ''
     for i, (lab, v) in enumerate(vals):
         h = v / mx * maxh; x = x0 + i * (bw + gap); last = hi_last and i == len(vals) - 1
-        fv = f'{v:.1f}'.replace('.', ',') if isinstance(v, float) and v != int(v) else f'{v:g}'.replace('.', ',')
+        fv = (f'{v:.1f}' if dec else f'{v:g}').replace('.', ',')
         out += (f'<rect x="{x}" y="{base-h}" width="{bw}" height="{h}" rx="14" fill="{HON if last else NB}"/>'
                 f'<text x="{x+bw/2}" y="{base-h-15}" text-anchor="middle" font-family="Poppins" font-weight="700" font-size="{fsv}" fill="{NB}">{fv}</text>'
                 f'<text x="{x+bw/2}" y="{base+45}" text-anchor="middle" font-family="Poppins" font-weight="500" font-size="{fsl}" fill="{GREY}">{E(str(lab))}</text>')
@@ -305,7 +306,7 @@ def l_diagramm(c):
 <h1 class="abs" style="left:60px;top:60px;width:470px;color:{NB};font-weight:800;font-size:56px;line-height:1.05;letter-spacing:-1px">{c.hl(s.get('headline'), s.get('accent'), s.get('headline_post'), False)}</h1>
 <p class="abs" style="left:60px;top:330px;width:440px;color:#41566B;font-size:27px;line-height:1.35">{E(s.get('subtitle',''))}</p>
 <div class="abs" style="left:520px;top:50px;width:640px;height:690px;background:#fff;border-radius:40px;box-shadow:0 26px 50px rgba(14,34,57,.18)"></div>
-<svg class="abs" style="left:520px;top:100px" width="640" height="560" viewBox="0 0 640 560"><line x1="20" y1="400" x2="620" y2="400" stroke="#D5DEEA" stroke-width="3"/><g transform="translate(0,40)">{bars}</g></svg>
+<svg class="abs" style="left:520px;top:100px" width="640" height="560" viewBox="0 0 640 560"><line x1="20" y1="440" x2="620" y2="440" stroke="#D5DEEA" stroke-width="3"/><g transform="translate(0,40)">{bars}</g></svg>
 {c.pill(pill, 790, 20, fs=26, rot=4) if pill else ''}
 {c.src(755)}{c.foot(False)}''')
 
