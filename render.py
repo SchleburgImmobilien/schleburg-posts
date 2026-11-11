@@ -255,6 +255,100 @@ def p_bewertung(c):
 {c.foot(False)}''')
 
 
+def mw_card(c, x, y, w, h, price, d, rot, fs):
+    col = HON if d == 'up' else '#3F6E95'
+    arrow = (f'<path d="M0 34 L34 0 L68 34 L46 34 L46 80 L22 80 L22 34 Z" fill="{col}"/>' if d == 'up'
+             else f'<path d="M0 46 L34 80 L68 46 L46 46 L46 0 L22 0 L22 46 Z" fill="{col}"/>')
+    ico = f'<svg width="{int(h*.30)}" viewBox="0 0 100 90" fill="none" stroke="{NB}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"><path d="M8 46 L50 10 L92 46"/><path d="M22 40 V78 Q22 82 26 82 H74 Q78 82 78 78 V40"/></svg>'
+    return (f'<div class="abs" style="left:{x}px;top:{y}px;width:{w}px;height:{h}px;background:{CRE};border-radius:30px;'
+            f'transform:rotate({rot}deg);box-shadow:0 22px 44px rgba(0,0,0,.38);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly">'
+            f'{ico}<div style="font-weight:800;font-size:{fs}px;color:{NB};letter-spacing:-.5px">{E(price)}</div>'
+            f'<svg width="{int(h*.22)}" viewBox="0 0 68 80">{arrow}</svg></div>')
+
+
+def mw_pin(c, tx, ty, w, h, price, d, fs=34, style=0):
+    """Preis-Marker, der mit seiner Spitze (tx,ty) auf ein Gebaeude zeigt. style 0 = weiss, 1 = nachtblau, 2 = glas, 3 = pille."""
+    dark = style in (1, 2, 3)
+    col = ('#3DCB7A' if d == 'up' else '#FF6464') if dark else ('#2E9E5B' if d == 'up' else '#D64545')
+    arrow = (f'<path d="M0 34 L34 0 L68 34 L46 34 L46 80 L22 80 L22 34 Z" fill="{col}"/>' if d == 'up'
+             else f'<path d="M0 46 L34 80 L68 46 L46 46 L46 0 L22 0 L22 46 Z" fill="{col}"/>')
+    dot = (f'<div class="abs" style="left:{tx-11}px;top:{ty-11}px;width:22px;height:22px;border-radius:50%;background:{HON};border:4px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.4)"></div>')
+    if style == 3:
+        ph_, pw = 84, 300
+        pill = (f'<div class="abs" style="left:{tx-pw//2}px;top:{ty-70-ph_}px;width:{pw}px;height:{ph_}px;background:{NB};border-radius:42px;border:3px solid {HON};'
+                f'box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;gap:16px;color:#fff;font-weight:800;font-size:38px;letter-spacing:-.5px">'
+                f'<svg height="40" viewBox="0 0 68 80">{arrow}</svg>{E(price)}</div>'
+                f'<div class="abs" style="left:{tx-2}px;top:{ty-70}px;width:4px;height:70px;background:{HON}"></div>')
+        return pill + dot
+    ico_c = '#fff' if dark else NB
+    ico = f'<svg width="{int(h*.28)}" viewBox="0 0 100 90" fill="none" stroke="{ico_c}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"><path d="M8 46 L50 10 L92 46"/><path d="M22 40 V78 Q22 82 26 82 H74 Q78 82 78 78 V40"/></svg>'
+    tail = 30
+    if style == 1:
+        bg = f'background:{NB};border-top:8px solid {HON};'; tc = NB; txt = '#fff'
+    elif style == 2:
+        bg = 'background:rgba(31,59,87,.58);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:2px solid rgba(255,255,255,.45);'; tc = 'rgba(31,59,87,.58)'; txt = '#fff'
+    else:
+        bg = f'background:{CRE};border-top:8px solid {HON};'; tc = CRE; txt = NB
+    return (f'<div class="abs" style="left:{tx-w//2}px;top:{ty-tail-h}px;width:{w}px;height:{h}px;{bg}border-radius:26px;'
+            f'box-shadow:0 18px 36px rgba(0,0,0,.40);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly">'
+            f'{ico}<div style="font-weight:800;font-size:{fs}px;color:{txt};letter-spacing:-.5px">{E(price)}</div>'
+            f'<svg width="{int(h*.2)}" viewBox="0 0 68 80">{arrow}</svg></div>'
+            f'<div class="abs" style="left:{tx-20}px;top:{ty-tail-2}px;width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:{tail}px solid {tc};filter:drop-shadow(0 8px 6px rgba(0,0,0,.25))"></div>'
+            + dot)
+
+
+def mw_common(c):
+    s = c.s
+    cards = s.get('cards') or [{'v': '595.000 €', 'd': 'up'}, {'v': '640.000 €', 'd': 'down'}, {'v': '615.000 €', 'd': 'up'}]
+    return cards
+
+
+def p_marktwert(c):
+    s = c.s; im = s['image']; W, H, FH = c.W, c.H, c.FH; ph = H - FH
+    lay = s.get('layout', 1)
+    cards = mw_common(c)
+    cd = ''.join(mw_pin(c, k['x'], k['y'], 170, 205, k['v'], k['d'], fs=29, style=s.get('pin', 0)) for k in cards)
+    tl = s.get('top') == 'light'
+    head = c.hl(s.get('headline', 'Was ist Ihre Immobilie'), s.get('accent', 'wirklich'), s.get('headline_post', 'wert?'), not tl)
+    h1 = f'<h1 class="abs" style="left:70px;top:70px;width:940px;color:{NB if tl else '#fff'};font-weight:800;font-size:92px;line-height:1.03;letter-spacing:-2px;text-wrap:balance">{head}</h1>'
+    photo = f'<img class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;object-fit:cover;{c.fpos(im, W, ph, W//2, ph//2)}" src="{c.photo(im)}">'
+    shade = f'<div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;background:linear-gradient(180deg,rgba(31,59,87,.88) 0%,rgba(31,59,87,.55) 38%,rgba(31,59,87,.10) 70%,rgba(31,59,87,.30) 100%)"></div>'
+    banner = s.get('banner', 'Kostenlose Marktwert-Einschätzung online anfragen.')
+    src = f'<p class="abs" style="left:40px;top:{ph-44}px;color:#fff;opacity:.9;font-size:22px;text-shadow:0 1px 6px rgba(0,0,0,.6)">{E(s.get("source", ""))}</p>'
+    if lay == 1:   # Angebotsleiste unten ueber dem Footer
+        cta = (f'<div class="abs" style="left:0;top:{ph-110}px;width:{W}px;height:110px;background:{NB};border-top:8px solid {HON};display:flex;align-items:center;justify-content:center;'
+               f'color:#fff;font-weight:700;font-size:38px;letter-spacing:-.5px">{E(banner)}</div>')
+        stamp = c.stamp(*s.get('stamp', ['100 %', 'KOSTENLOS']), 850, ph-110-210, 190, -10)
+        src = src.replace(f'top:{ph-44}px', f'top:{ph-110-44}px')
+        body = f'{photo}{shade}{h1}{cd}{stamp}{cta}{src}'
+    elif lay == 2:  # Diagonale: oben Nachtblau mit Headline + Angebot, darunter Foto
+        y0, y1 = 545, 455
+        body = (f'<div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;clip-path:polygon(0 {y0}px,100% {y1}px,100% 100%,0 100%)">{photo}</div>'
+                f'<svg class="abs" style="left:0;top:0" width="{W}" height="{ph}" viewBox="0 0 {W} {ph}"><path d="M0 {y0} L{W} {y1}" stroke="{HON}" stroke-width="12" fill="none"/></svg>'
+                f'{h1.replace("top:70px", "top:105px") if not banner else h1}' + (f'<p class="abs" style="left:70px;top:392px;width:940px;color:#D5DEEA;font-size:36px;font-weight:500;line-height:1.3">{E(banner)}</p>' if banner else '') +
+                f'{cd}{c.stamp(*s.get("stamp", ["100 %", "KOSTENLOS"]), 850, ph-250, 190, -10)}{src}')
+    else:           # Stempel traegt die Aussage, kein Balken
+        body = (f'{photo}{shade}{h1}{cd}'
+                f'{c.stamp(*s.get("stamp", ["Kostenlose", "Bewertung"]), 800, 262, 230, -8, 28, 28)}{src}')
+    return c.page(f'<div class="{'bgl' if tl and lay == 2 else 'bgd'}"></div>{body}{c.foot(s.get('foot') != 'light')}{'<div class="abs" style="left:0;top:'+str(ph-5)+'px;width:'+str(W)+'px;height:10px;background:'+HON+'"></div>' if s.get('foot') == 'light' else ''}')
+
+
+def l_marktwert(c):
+    s = c.s; im = s['image']; W, H, FH = c.W, c.H, c.FH; ph = H - FH
+    cards = mw_common(c)
+    pos = [(60, 430, -3), (330, 400, 2), (600, 445, -2)]
+    cd = ''.join(mw_card(c, x, y, 220, 250, k['v'], k['d'], r, 34) for k, (x, y, r) in zip(cards, pos))
+    return c.page(f'''<div class="bgd"></div>
+<img class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;object-fit:cover;{c.fpos(im, W, ph, W//2, ph//2)}" src="{c.photo(im)}">
+<div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;background:linear-gradient(180deg,rgba(31,59,87,.88) 0%,rgba(31,59,87,.55) 42%,rgba(31,59,87,.10) 75%,rgba(31,59,87,.30) 100%)"></div>
+<h1 class="abs" style="left:60px;top:44px;width:1000px;color:#fff;font-weight:800;font-size:66px;line-height:1.04;letter-spacing:-1.5px">{c.hl(s.get('headline', 'Was ist Ihre Immobilie'), s.get('accent', 'wirklich'), s.get('headline_post', 'wert?'), True)}</h1>
+<div class="abs" style="left:0;top:290px;width:700px;background:{NB};border-left:12px solid {HON};padding:16px 30px;color:#fff;font-weight:600;font-size:28px;line-height:1.2">{E(s.get('banner', 'Kostenlose Marktwert-Einschätzung online anfragen.'))}</div>
+{cd}
+{c.stamp(*s.get('stamp', ['100 %', 'KOSTENLOS']), 930, 400, 190, -10)}
+<p class="abs" style="left:60px;top:{ph-40}px;color:#fff;opacity:.85;font-size:20px">{E(s.get('source', ''))}</p>
+{c.foot(True)}''')
+
+
 # =============== Querformat 1200x900 (Google) ===============
 def l_foto(c):
     """tipp / liste / mythos / objekt / bewertung: Foto mit Karte links."""
@@ -325,9 +419,9 @@ def l_gesicht(c):
 
 
 PORTRAIT = {'zahl': p_zahl, 'diagramm': p_diagramm, 'tipp': p_tipp, 'liste': p_liste, 'mythos': p_mythos,
-            'gesicht': p_gesicht, 'objekt': p_objekt, 'bewertung': p_bewertung}
+            'gesicht': p_gesicht, 'objekt': p_objekt, 'bewertung': p_bewertung, 'marktwert': p_marktwert}
 LAND = {'zahl': l_zahl, 'diagramm': l_diagramm, 'gesicht': l_gesicht, 'tipp': l_foto, 'liste': l_foto,
-        'mythos': l_foto, 'objekt': l_foto, 'bewertung': l_foto}
+        'mythos': l_foto, 'objekt': l_foto, 'bewertung': l_foto, 'marktwert': l_marktwert}
 
 
 def build_html(spec, pool):
