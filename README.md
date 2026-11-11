@@ -22,6 +22,7 @@ Format: `"format": "portrait"` (1080x1350, Facebook/Instagram) oder `"landscape"
 | gesicht | quote, accent, quote_post, role (Freisteller-Portrait, Standard Anzug) |
 | objekt | kicker, headline, accent, headline_post, text, stamp ["NEU IM","ANGEBOT"], image |
 | bewertung | headline, accent, headline_post, text, stamp, device (Laptop-Freisteller) |
+| marktwert | Alternative zu bewertung (hoch + quer): fertige Specs in assets/marktwert/ (a, g), Preis-Kacheln mit Pin-Koordinaten pro Bild, Felder image, cards (x, y, v, d), off (nur quer), pin, headline, source |
 
 Optional überall: `hl_style` ("italic" Standard oder "marker" = Textmarker-Effekt), `accent_dark` / `accent_light` (Themenfarbe als Hex), `marker_color`, `focus` ({driveId:[x,y]} überschreibt focus.json).
 

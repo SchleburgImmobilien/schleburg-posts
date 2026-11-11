@@ -1,0 +1,28 @@
+{
+ "template": "marktwert",
+ "format": "landscape",
+ "image": "1SHx1T2SxHCfEbODehCDi7gCE0MV0D9rT",
+ "source": "Beispielwerte zur Illustration",
+ "cards": [
+  {
+   "x": 291,
+   "y": 633,
+   "v": "615.000 €",
+   "d": "up"
+  },
+  {
+   "x": 660,
+   "y": 716,
+   "v": "595.000 €",
+   "d": "down"
+  },
+  {
+   "x": 943,
+   "y": 650,
+   "v": "640.000 €",
+   "d": "up"
+  }
+ ],
+ "off": 407,
+ "headline": "Was ist Ihre Immobilie"
+}

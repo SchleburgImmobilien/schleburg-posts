@@ -334,19 +334,25 @@ def p_marktwert(c):
 
 
 def l_marktwert(c):
+    """Querformat: Diagonale, oben dunkel mit Headline, Foto mit schwebenden Preis-Kacheln, heller Footer.
+    Pin-Spitzen (x,y) in Foto-Box-Koordinaten (1200 x ph); s['off'] = vertikaler Bildausschnitt in px."""
     s = c.s; im = s['image']; W, H, FH = c.W, c.H, c.FH; ph = H - FH
     cards = mw_common(c)
-    pos = [(60, 430, -3), (330, 400, 2), (600, 445, -2)]
-    cd = ''.join(mw_card(c, x, y, 220, 250, k['v'], k['d'], r, 34) for k, (x, y, r) in zip(cards, pos))
+    cd = ''.join(mw_pin(c, k['x'], k['y'], 150, 180, k['v'], k['d'], fs=26, style=s.get('pin', 0)) for k in cards)
+    iw, ih = Image.open(os.path.join(c.pool, im + '.jpg')).size
+    hs = ih * W / iw; off = s.get('off', 407)
+    pos = f'object-position:50% {min(100, max(0, off / max(1, hs - ph) * 100)):.1f}%'
+    y0, y1 = 360, 290
+    head = c.hl(s.get('headline', 'Was ist Ihre Immobilie'), s.get('accent', 'wirklich'), s.get('headline_post', 'wert?'), True)
     return c.page(f'''<div class="bgd"></div>
-<img class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;object-fit:cover;{c.fpos(im, W, ph, W//2, ph//2)}" src="{c.photo(im)}">
-<div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;background:linear-gradient(180deg,rgba(31,59,87,.88) 0%,rgba(31,59,87,.55) 42%,rgba(31,59,87,.10) 75%,rgba(31,59,87,.30) 100%)"></div>
-<h1 class="abs" style="left:60px;top:44px;width:1000px;color:#fff;font-weight:800;font-size:66px;line-height:1.04;letter-spacing:-1.5px">{c.hl(s.get('headline', 'Was ist Ihre Immobilie'), s.get('accent', 'wirklich'), s.get('headline_post', 'wert?'), True)}</h1>
-<div class="abs" style="left:0;top:290px;width:700px;background:{NB};border-left:12px solid {HON};padding:16px 30px;color:#fff;font-weight:600;font-size:28px;line-height:1.2">{E(s.get('banner', 'Kostenlose Marktwert-Einschätzung online anfragen.'))}</div>
+<div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;clip-path:polygon(0 {y0}px,100% {y1}px,100% 100%,0 100%)"><img class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;object-fit:cover;{pos}" src="{c.photo(im)}"></div>
+<svg class="abs" style="left:0;top:0" width="{W}" height="{ph}" viewBox="0 0 {W} {ph}"><path d="M0 {y0} L{W} {y1}" stroke="{HON}" stroke-width="10" fill="none"/></svg>
+<h1 class="abs" style="left:70px;top:58px;width:1060px;color:#fff;font-weight:800;font-size:80px;line-height:1.04;letter-spacing:-2px">{head}</h1>
 {cd}
-{c.stamp(*s.get('stamp', ['100 %', 'KOSTENLOS']), 930, 400, 190, -10)}
-<p class="abs" style="left:60px;top:{ph-40}px;color:#fff;opacity:.85;font-size:20px">{E(s.get('source', ''))}</p>
-{c.foot(True)}''')
+{c.stamp(*s.get('stamp', ['100 %', 'KOSTENLOS']), W-175, ph-165, 145, -10, 22, 20)}
+<p class="abs" style="left:34px;top:{ph-38}px;color:#fff;opacity:.9;font-size:20px;text-shadow:0 1px 6px rgba(0,0,0,.6)">{E(s.get('source', ''))}</p>
+<div class="abs" style="left:0;top:{ph-5}px;width:{W}px;height:10px;background:{HON}"></div>
+{c.foot(False)}''')
 
 
 # =============== Querformat 1200x900 (Google) ===============
