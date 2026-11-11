@@ -342,12 +342,12 @@ def l_marktwert(c):
     iw, ih = Image.open(os.path.join(c.pool, im + '.jpg')).size
     hs = ih * W / iw; off = s.get('off', 407)
     pos = f'object-position:50% {min(100, max(0, off / max(1, hs - ph) * 100)):.1f}%'
-    y0, y1 = 360, 290
+    y0, y1 = 290, 225
     head = c.hl(s.get('headline', 'Was ist Ihre Immobilie'), s.get('accent', 'wirklich'), s.get('headline_post', 'wert?'), True)
     return c.page(f'''<div class="bgd"></div>
 <div class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;clip-path:polygon(0 {y0}px,100% {y1}px,100% 100%,0 100%)"><img class="abs" style="left:0;top:0;width:{W}px;height:{ph}px;object-fit:cover;{pos}" src="{c.photo(im)}"></div>
 <svg class="abs" style="left:0;top:0" width="{W}" height="{ph}" viewBox="0 0 {W} {ph}"><path d="M0 {y0} L{W} {y1}" stroke="{HON}" stroke-width="10" fill="none"/></svg>
-<h1 class="abs" style="left:70px;top:58px;width:1060px;color:#fff;font-weight:800;font-size:80px;line-height:1.04;letter-spacing:-2px">{head}</h1>
+<h1 class="abs" style="left:70px;top:42px;width:1060px;color:#fff;font-weight:800;font-size:76px;line-height:1.04;letter-spacing:-2px">{head}</h1>
 {cd}
 {c.stamp(*s.get('stamp', ['100 %', 'KOSTENLOS']), W-175, ph-165, 145, -10, 22, 20)}
 <p class="abs" style="left:34px;top:{ph-38}px;color:#fff;opacity:.9;font-size:20px;text-shadow:0 1px 6px rgba(0,0,0,.6)">{E(s.get('source', ''))}</p>
